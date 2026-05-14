@@ -1390,82 +1390,13 @@ table.data-table td:not(:first-child) { text-align: right; }
 </section>
 
 
-<!-- ═══════════════════════════════════════════
-  §7 — STRATEGIC INSIGHTS & NOTES
-═══════════════════════════════════════════ -->
-<section class="report-section" id="insights">
-  <div class="section-label">
-    <div class="section-num">07</div>
-    <div><div class="section-title">Strategic Insights &amp; Management Notes</div></div>
-  </div>
-  <p class="section-desc">
-    Observations and recommendations for cost governance, optimisation, and planning.
-  </p>
-
-  <div class="insights-grid">
-    <div class="insight-card warn">
-      <div class="insight-tag">🔴 Cost Priority</div>
-      <h4>Extraction Pipeline Drives 78% of Cost</h4>
-      <p>Document extraction (1,106 calls) is the dominant spend. Each additional run adds ~₹3,250–3,750. Implementing document caching and change-detection before re-extraction would be the highest-ROI optimisation available.</p>
-    </div>
-    <div class="insight-card">
-      <div class="insight-tag">📐 Architecture</div>
-      <h4>Thinking Tokens = Quality Investment</h4>
-      <p>49% of all tokens are thinking tokens. This is by design — the model reasons internally before answering complex tasks. Disabling thinking would reduce costs ~40% but risks accuracy in price matching and specification disambiguation.</p>
-    </div>
-    <div class="insight-card success">
-      <div class="insight-tag">✅ Efficiency</div>
-      <h4>MTO Pipeline is Highly Cost-Efficient</h4>
-      <p>At &lt;1% of total spend (₹60–65 per run), MTO generation delivers disproportionate value. The cost per priced MTO line item is negligible. No optimisation needed in this pipeline.</p>
-    </div>
-    <div class="insight-card neutral">
-      <div class="insight-tag">📋 Scalability</div>
-      <h4>SOR Cost Scales Linearly with PO Volume</h4>
-      <p>The SOR Price Search LLM cost grows proportionally with PO line items (400 items = ~₹1,500–1,900). For every 100 additional PO items, expect ~₹375–475 in additional SOR pipeline cost.</p>
-    </div>
-    <div class="insight-card">
-      <div class="insight-tag">💡 Optimisation</div>
-      <h4>Embedding Calls are Effectively Free</h4>
-      <p>All embedding calls combined (112 total) cost ₹0.23 — negligible. Embedding-first search architecture is the correct approach; expand semantic search coverage without cost concern.</p>
-    </div>
-    <div class="insight-card warn">
-      <div class="insight-tag">📅 Projection</div>
-      <h4>Budget Planning for Recurring Runs</h4>
-      <p>Assuming quarterly extraction runs + monthly MTO and SOR runs: projected annual AI API cost is approximately <strong>₹30,000–40,000</strong>. Establish a monthly API cost monitoring dashboard to track actuals vs this baseline.</p>
-    </div>
-  </div>
-
-  <div class="rule-divider"></div>
-
-  <div style="background:#f7f8fa;border:1px solid var(--rule);border-radius:var(--r-lg);padding:24px 28px;">
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--ink-40);margin-bottom:14px;">Terminology Reference</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;">Prompt Tokens</div>
-        <div style="font-size:12px;color:var(--ink-60);line-height:1.55;">Text sent to the model — instructions, document content, and context. Billed as input tokens.</div>
-      </div>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;">Output Tokens</div>
-        <div style="font-size:12px;color:var(--ink-60);line-height:1.55;">Text returned by the model. Typically 5–15% of input volume. Billed at output rate.</div>
-      </div>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;">Thinking Tokens</div>
-        <div style="font-size:12px;color:var(--ink-60);line-height:1.55;">Internal chain-of-thought reasoning, not shown in output. Improves accuracy for complex tasks. Billed separately.</div>
-      </div>
-      <div>
-        <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;">Embedding Tokens</div>
-        <div style="font-size:12px;color:var(--ink-60);line-height:1.55;">Input-only tokens used to convert text into search vectors. No output or thinking tokens; extremely cheap.</div>
-      </div>
-    </div>
-  </div>
-</section>
 
 </div><!-- /report-body -->
 
 <!-- FOOTER -->
 <div class="report-footer">
   <div class="footer-mark">Internal Use Only — AI Cost Estimation Report</div>
-  <div class="footer-note">Generated: May 2025 · Google Gemini API · Baseline Run</div>
+  <div class="footer-note">Generated: May 2026 · Google Gemini API · Baseline Run</div>
   <div class="footer-conf">Confidential</div>
 </div>
 
