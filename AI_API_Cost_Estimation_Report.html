@@ -1,0 +1,1511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI API Cost Estimation Report — Executive Summary</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Figtree:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   DESIGN SYSTEM — ENTERPRISE LIGHT THEME
+═══════════════════════════════════════════ */
+:root {
+  --ink:        #0d1117;
+  --ink-80:     #1e2530;
+  --ink-60:     #3d4a5c;
+  --ink-40:     #6b7a8d;
+  --ink-20:     #a8b4c0;
+  --ink-10:     #dde3ea;
+  --paper:      #f7f8fa;
+  --white:      #ffffff;
+  --rule:       #e2e7ed;
+
+  --primary:    #0f4c8a;   /* Deep navy — authority */
+  --primary-lt: #d6e4f7;
+  --primary-mid:#1a6abf;
+  --accent:     #c8922a;   /* Amber gold — emphasis */
+  --accent-lt:  #fdf3e3;
+  --success:    #1a7a4a;
+  --success-lt: #d4f0e2;
+  --warn:       #b85c00;
+  --warn-lt:    #fdecd7;
+
+  --sans: 'Figtree', system-ui, sans-serif;
+  --serif: 'Playfair Display', Georgia, serif;
+  --mono: 'JetBrains Mono', monospace;
+
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 16px;
+  --shadow-card: 0 2px 12px rgba(13,17,23,0.07), 0 1px 3px rgba(13,17,23,0.04);
+  --shadow-float: 0 8px 32px rgba(13,17,23,0.12), 0 2px 8px rgba(13,17,23,0.06);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--ink-80);
+  background: var(--paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ═══════════════════════════════════════════
+   PRINT / SCREEN WRAPPER
+═══════════════════════════════════════════ */
+.report-shell {
+  max-width: 1120px;
+  margin: 0 auto;
+  background: var(--white);
+  box-shadow: var(--shadow-float);
+}
+
+/* ═══════════════════════════════════════════
+   COVER PAGE
+═══════════════════════════════════════════ */
+.cover {
+  position: relative;
+  background: var(--primary);
+  color: white;
+  padding: 72px 72px 60px;
+  overflow: hidden;
+  min-height: 380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cover-pattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 80% 20%, rgba(200,146,42,0.18) 0%, transparent 50%),
+    radial-gradient(circle at 10% 90%, rgba(26,106,191,0.3) 0%, transparent 45%);
+  pointer-events: none;
+}
+
+.cover-lines {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 320px;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 48px,
+    rgba(255,255,255,0.03) 48px,
+    rgba(255,255,255,0.03) 49px
+  );
+}
+
+.cover-top { display: flex; align-items: flex-start; justify-content: space-between; }
+
+.org-mark {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.12em;
+  text-transform: uppercase; opacity: 0.7;
+}
+.org-mark-dot {
+  width: 28px; height: 28px; border-radius: 6px;
+  background: var(--accent); display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: white;
+}
+
+.doc-ref {
+  font-size: 11px; font-family: var(--mono); opacity: 0.5;
+  text-align: right; line-height: 1.8;
+}
+
+.cover-body { margin-top: 48px; }
+
+.cover-eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--accent);
+  margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+}
+.cover-eyebrow::before {
+  content: ''; display: block; width: 28px; height: 2px; background: var(--accent);
+}
+
+.cover h1 {
+  font-family: var(--serif);
+  font-size: clamp(28px, 4vw, 42px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  margin-bottom: 10px;
+}
+
+.cover-sub {
+  font-size: 15px; opacity: 0.65; max-width: 520px; line-height: 1.55;
+  margin-bottom: 40px;
+}
+
+.cover-meta {
+  display: flex; gap: 40px; padding-top: 28px;
+  border-top: 1px solid rgba(255,255,255,0.15);
+}
+.cover-meta-item { display: flex; flex-direction: column; gap: 3px; }
+.cover-meta-item .label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.5; }
+.cover-meta-item .value { font-size: 13px; font-weight: 500; }
+
+/* ═══════════════════════════════════════════
+   NAVIGATION RIBBON
+═══════════════════════════════════════════ */
+.nav-ribbon {
+  background: var(--ink);
+  display: flex;
+  overflow-x: auto;
+  position: sticky; top: 0; z-index: 100;
+  scrollbar-width: none;
+}
+.nav-ribbon::-webkit-scrollbar { display: none; }
+
+.nav-item {
+  padding: 13px 22px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase; color: rgba(255,255,255,0.45);
+  cursor: pointer; border: none; background: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.18s; white-space: nowrap;
+}
+.nav-item:hover { color: rgba(255,255,255,0.8); }
+.nav-item.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ═══════════════════════════════════════════
+   LAYOUT — MAIN CONTENT
+═══════════════════════════════════════════ */
+.report-body { padding: 0; }
+
+.report-section {
+  padding: 56px 72px;
+  border-bottom: 1px solid var(--rule);
+}
+.report-section:last-child { border-bottom: none; }
+
+/* ═══════════════════════════════════════════
+   SECTION HEADERS
+═══════════════════════════════════════════ */
+.section-label {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 28px;
+}
+.section-num {
+  width: 28px; height: 28px;
+  background: var(--primary);
+  color: white; border-radius: var(--r-sm);
+  font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); flex-shrink: 0;
+}
+.section-title {
+  font-family: var(--serif);
+  font-size: 22px; font-weight: 700;
+  color: var(--ink); letter-spacing: -0.01em;
+}
+.section-desc {
+  color: var(--ink-40); font-size: 13px;
+  line-height: 1.65; margin-top: 4px;
+  margin-bottom: 32px;
+  max-width: 680px;
+  padding-left: 40px;
+}
+
+/* ═══════════════════════════════════════════
+   KPI SCORECARD ROW
+═══════════════════════════════════════════ */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.kpi-card {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s;
+}
+.kpi-card:hover { box-shadow: var(--shadow-float); }
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+}
+.kpi-card.navy::before { background: var(--primary); }
+.kpi-card.gold::before { background: var(--accent); }
+.kpi-card.green::before { background: var(--success); }
+.kpi-card.slate::before { background: var(--ink-40); }
+
+.kpi-icon {
+  width: 36px; height: 36px; border-radius: var(--r-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; margin-bottom: 16px;
+}
+.kpi-card.navy .kpi-icon { background: var(--primary-lt); }
+.kpi-card.gold .kpi-icon { background: var(--accent-lt); }
+.kpi-card.green .kpi-icon { background: var(--success-lt); }
+.kpi-card.slate .kpi-icon { background: var(--ink-10); }
+
+.kpi-value {
+  font-family: var(--serif);
+  font-size: 28px; font-weight: 700;
+  line-height: 1; color: var(--ink);
+  margin-bottom: 5px;
+}
+.kpi-card.gold .kpi-value { color: var(--accent); }
+.kpi-card.navy .kpi-value { color: var(--primary); }
+
+.kpi-label {
+  font-size: 11px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.09em;
+  color: var(--ink-40);
+}
+.kpi-sub {
+  font-size: 11px; color: var(--ink-20);
+  margin-top: 6px;
+}
+
+/* ═══════════════════════════════════════════
+   PIPELINE SUMMARY CARDS
+═══════════════════════════════════════════ */
+.pipeline-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.pipeline-card {
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--white);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.pipeline-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-float); }
+
+.pipeline-card-header {
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.pipeline-card-label {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 4px;
+}
+.pipeline-card-name {
+  font-size: 15px; font-weight: 700; color: var(--ink); line-height: 1.3;
+}
+.pipeline-cost-badge {
+  font-family: var(--serif);
+  font-size: 20px; font-weight: 700;
+  white-space: nowrap; padding: 4px 12px;
+  border-radius: var(--r-sm);
+}
+
+.pipeline-card.p1 .pipeline-card-label { color: var(--primary-mid); }
+.pipeline-card.p1 .pipeline-cost-badge { background: var(--primary-lt); color: var(--primary); }
+.pipeline-card.p2 .pipeline-card-label { color: var(--accent); }
+.pipeline-card.p2 .pipeline-cost-badge { background: var(--accent-lt); color: var(--warn); }
+.pipeline-card.p3 .pipeline-card-label { color: var(--success); }
+.pipeline-card.p3 .pipeline-cost-badge { background: var(--success-lt); color: var(--success); }
+
+.pipeline-card-body { padding: 16px 22px; }
+.pipeline-stat-row {
+  display: flex; justify-content: space-between;
+  padding: 7px 0; border-bottom: 1px solid var(--rule);
+  font-size: 12px;
+}
+.pipeline-stat-row:last-child { border-bottom: none; }
+.pipeline-stat-row .sk { color: var(--ink-40); }
+.pipeline-stat-row .sv { font-weight: 600; color: var(--ink-80); font-family: var(--mono); font-size: 11px; }
+
+.pipeline-share-bar {
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--rule);
+}
+.share-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.09em; color: var(--ink-20); margin-bottom: 6px; }
+.share-track { background: var(--rule); border-radius: 100px; height: 6px; overflow: hidden; }
+.share-fill { height: 100%; border-radius: 100px; }
+.p1 .share-fill { background: var(--primary); }
+.p2 .share-fill { background: var(--accent); }
+.p3 .share-fill { background: var(--success); }
+.share-pct { font-size: 11px; font-weight: 700; margin-top: 4px; }
+.p1 .share-pct { color: var(--primary); }
+.p2 .share-pct { color: var(--accent); }
+.p3 .share-pct { color: var(--success); }
+
+/* ═══════════════════════════════════════════
+   DATA TABLES
+═══════════════════════════════════════════ */
+.table-wrap {
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: 32px;
+  box-shadow: var(--shadow-card);
+}
+
+.table-header-bar {
+  padding: 14px 20px;
+  background: var(--ink);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.table-header-bar h3 {
+  font-size: 12px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; color: white;
+}
+.table-badge {
+  font-size: 10px; font-family: var(--mono);
+  background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.6);
+  padding: 3px 10px; border-radius: 100px; letter-spacing: 0.05em;
+}
+
+table.data-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 12.5px;
+}
+table.data-table thead {
+  background: #f0f3f7;
+}
+table.data-table thead th {
+  padding: 10px 16px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.09em;
+  text-transform: uppercase; color: var(--ink-60);
+  text-align: left; border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+table.data-table thead th:not(:first-child) { text-align: right; }
+
+table.data-table tbody tr {
+  border-bottom: 1px solid var(--rule);
+  transition: background 0.12s;
+}
+table.data-table tbody tr:last-child { border-bottom: none; }
+table.data-table tbody tr:hover { background: #f7f9fc; }
+
+table.data-table td {
+  padding: 11px 16px; color: var(--ink-80); vertical-align: middle;
+}
+table.data-table td:not(:first-child) { text-align: right; }
+
+.td-api {
+  font-family: var(--mono); font-size: 11.5px;
+  color: var(--primary); font-weight: 500;
+}
+.td-num { font-family: var(--mono); font-size: 12px; color: var(--ink-60); }
+.td-cost { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--accent); }
+
+.row-total {
+  background: var(--ink) !important;
+  color: white;
+}
+.row-total td { color: white !important; font-weight: 700; }
+.row-total .td-cost { color: var(--accent) !important; font-size: 13px; }
+
+.row-subtotal {
+  background: #f0f3f7;
+}
+.row-subtotal td { font-weight: 700; }
+
+.pipeline-row-label {
+  padding: 8px 16px 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: white;
+}
+.pl1 { background: var(--primary); }
+.pl2 { background: var(--warn); }
+.pl3 { background: var(--success); }
+
+/* ═══════════════════════════════════════════
+   VISUAL BARS — COST DISTRIBUTION
+═══════════════════════════════════════════ */
+.dist-chart {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  padding: 28px;
+  box-shadow: var(--shadow-card);
+  margin-bottom: 32px;
+}
+.dist-chart h3 {
+  font-size: 13px; font-weight: 700; color: var(--ink);
+  margin-bottom: 22px; letter-spacing: -0.01em;
+}
+.dist-rows { display: flex; flex-direction: column; gap: 14px; }
+.dist-row { display: flex; align-items: center; gap: 14px; }
+.dist-label {
+  width: 200px; flex-shrink: 0;
+  font-size: 11px; color: var(--ink-60); line-height: 1.35;
+  font-family: var(--mono);
+}
+.dist-track {
+  flex: 1; height: 26px;
+  background: var(--rule); border-radius: 4px; overflow: hidden;
+  position: relative;
+}
+.dist-fill {
+  height: 100%; border-radius: 4px;
+  display: flex; align-items: center; padding-left: 10px;
+  font-size: 10px; font-weight: 700; color: white; letter-spacing: 0.04em;
+  transition: width 1.2s cubic-bezier(0.4,0,0.2,1);
+  min-width: 2px;
+}
+.dist-meta {
+  width: 130px; flex-shrink: 0; text-align: right;
+}
+.dist-cost { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ink); }
+.dist-calls { font-size: 10px; color: var(--ink-40); }
+
+/* ═══════════════════════════════════════════
+   TOKEN BREAKDOWN PANEL
+═══════════════════════════════════════════ */
+.token-panels { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px; }
+
+.token-panel {
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+.token-panel-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--rule);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.token-panel-header h4 {
+  font-size: 12px; font-weight: 700; color: var(--ink); letter-spacing: -0.01em;
+}
+.token-panel-header span {
+  font-size: 10px; font-family: var(--mono);
+  color: var(--ink-40); background: var(--rule);
+  padding: 2px 8px; border-radius: 4px;
+}
+.token-panel-body { padding: 16px 18px; }
+
+.token-bar-group { margin-bottom: 12px; }
+.token-bar-label {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 5px;
+}
+.token-bar-name { font-size: 11px; font-weight: 600; color: var(--ink-60); }
+.token-bar-val { font-family: var(--mono); font-size: 11px; color: var(--ink-80); }
+.token-bar-track { height: 8px; background: var(--rule); border-radius: 100px; overflow: hidden; }
+.token-bar-fill { height: 100%; border-radius: 100px; }
+
+/* ═══════════════════════════════════════════
+   INSIGHTS BOX
+═══════════════════════════════════════════ */
+.insights-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px; }
+
+.insight-card {
+  padding: 20px 22px;
+  border-radius: var(--r-lg);
+  border-left: 3px solid transparent;
+  background: var(--white);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--primary);
+  box-shadow: var(--shadow-card);
+}
+.insight-card.warn { border-left-color: var(--accent); }
+.insight-card.success { border-left-color: var(--success); }
+.insight-card.neutral { border-left-color: var(--ink-20); }
+
+.insight-tag {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 8px;
+}
+.insight-card .insight-tag { color: var(--primary); }
+.insight-card.warn .insight-tag { color: var(--warn); }
+.insight-card.success .insight-tag { color: var(--success); }
+.insight-card.neutral .insight-tag { color: var(--ink-40); }
+
+.insight-card h4 { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 6px; line-height: 1.35; }
+.insight-card p { font-size: 12px; color: var(--ink-60); line-height: 1.6; }
+
+/* ═══════════════════════════════════════════
+   MASTER REFERENCE TABLE
+═══════════════════════════════════════════ */
+.master-table-wrap {
+  border: 1px solid var(--rule); border-radius: var(--r-lg);
+  overflow: hidden; box-shadow: var(--shadow-card);
+}
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+.report-footer {
+  padding: 28px 72px;
+  background: var(--ink);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.footer-mark {
+  font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.35);
+  letter-spacing: 0.06em; text-transform: uppercase;
+}
+.footer-note { font-size: 11px; color: rgba(255,255,255,0.25); font-family: var(--mono); }
+.footer-conf {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); background: rgba(200,146,42,0.15);
+  padding: 4px 12px; border-radius: 4px;
+}
+
+/* ═══════════════════════════════════════════
+   DIVIDER
+═══════════════════════════════════════════ */
+.rule-divider {
+  height: 1px; background: var(--rule); margin: 28px 0;
+}
+
+.callout-box {
+  background: var(--primary-lt);
+  border: 1px solid #b5ceee;
+  border-radius: var(--r-md);
+  padding: 16px 20px;
+  font-size: 12.5px; color: var(--primary);
+  line-height: 1.65;
+  margin-bottom: 24px;
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.callout-box.gold {
+  background: var(--accent-lt); border-color: #f0d4a0; color: var(--warn);
+}
+.callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.callout-box strong { font-weight: 700; }
+
+/* ═══════════════════════════════════════════
+   STACKED BAR — TOTAL TOKEN MIX
+═══════════════════════════════════════════ */
+.stacked-bar-wrap {
+  background: var(--white); border: 1px solid var(--rule);
+  border-radius: var(--r-lg); padding: 24px 28px;
+  box-shadow: var(--shadow-card); margin-bottom: 32px;
+}
+.stacked-bar-wrap h3 { font-size: 13px; font-weight: 700; margin-bottom: 20px; }
+.stacked-bar {
+  height: 36px; border-radius: var(--r-sm); overflow: hidden;
+  display: flex; margin-bottom: 16px;
+}
+.sb-seg {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 700; color: white; letter-spacing: 0.05em;
+  transition: opacity 0.2s;
+}
+.sb-seg:hover { opacity: 0.85; }
+.sb-legend { display: flex; gap: 24px; flex-wrap: wrap; }
+.sb-leg-item { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--ink-60); }
+.sb-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+/* animations */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.anim { animation: fadeSlideUp 0.5s ease both; }
+.anim-d1 { animation-delay: 0.05s; }
+.anim-d2 { animation-delay: 0.10s; }
+.anim-d3 { animation-delay: 0.15s; }
+.anim-d4 { animation-delay: 0.20s; }
+
+/* responsive clamp */
+@media (max-width: 900px) {
+  .kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .pipeline-grid { grid-template-columns: 1fr; }
+  .token-panels { grid-template-columns: 1fr; }
+  .insights-grid { grid-template-columns: 1fr; }
+  .report-section { padding: 40px 32px; }
+  .cover { padding: 48px 32px 40px; }
+  .cover-meta { flex-wrap: wrap; gap: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="report-shell">
+
+<!-- ═══════════════════════════════════════════
+     COVER
+═══════════════════════════════════════════ -->
+<div class="cover">
+  <div class="cover-pattern"></div>
+  <div class="cover-lines"></div>
+
+  <div class="cover-top">
+    <div class="org-mark">
+      <div class="org-mark-dot">AI</div>
+      Internal Report — Confidential
+    </div>
+    <div class="doc-ref">
+      Document ID: EST-AI-2025-001<br>
+      Revision: 1.0<br>
+      Date: May 2025
+    </div>
+  </div>
+
+  <div class="cover-body">
+    <div class="cover-eyebrow">Cost Estimation Report</div>
+    <h1>Google AI / Gemini API<br>Usage &amp; Cost Analysis</h1>
+    <p class="cover-sub">
+      A pipeline-level breakdown of all Gemini API calls across three operational workflows —
+      including token consumption, cost attribution, and strategic observations for
+      management review and budget planning.
+    </p>
+
+    <div class="cover-meta">
+      <div class="cover-meta-item">
+        <span class="label">Reporting Period</span>
+        <span class="value">Project Baseline Run</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="label">AI Platform</span>
+        <span class="value">Google Gemini (Flash / Pro)</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="label">Pipelines Covered</span>
+        <span class="value">3 (MTO · Extraction · SOR POS)</span>
+      </div>
+      <div class="cover-meta-item">
+        <span class="label">Classification</span>
+        <span class="value" style="color:var(--accent);">Internal — Confidential</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     NAVIGATION RIBBON
+═══════════════════════════════════════════ -->
+<nav class="nav-ribbon">
+  <button class="nav-item active" onclick="goTo('pipeline-overview', this)">Pipeline Overview</button>
+  <button class="nav-item" onclick="goTo('exec-summary', this)">Executive Summary</button>
+  <button class="nav-item" onclick="goTo('mto-section', this)">MTO Generation</button>
+  <button class="nav-item" onclick="goTo('extraction-section', this)">Extraction</button>
+  <button class="nav-item" onclick="goTo('sor-section', this)">SOR POS Search</button>
+  <button class="nav-item" onclick="goTo('master-ref', this)">Master Reference</button>
+  <button class="nav-item" onclick="goTo('insights', this)">Insights &amp; Notes</button>
+</nav>
+
+<div class="report-body">
+
+<!-- ═══════════════════════════════════════════
+  §1 — PIPELINE OVERVIEW
+═══════════════════════════════════════════ -->
+<section class="report-section" id="pipeline-overview">
+  <div class="section-label">
+    <div class="section-num">01</div>
+    <div><div class="section-title">Pipeline Overview &amp; Cost Attribution</div></div>
+  </div>
+  <p class="section-desc">
+    Three independent AI pipelines each serve distinct roles in the procurement workflow.
+    Costs and call volumes differ significantly between pipelines based on document scale and reasoning depth.
+  </p>
+
+  <div class="pipeline-grid">
+    <!-- P1: MTO -->
+    <div class="pipeline-card p1">
+      <div class="pipeline-card-header">
+        <div>
+          <div class="pipeline-card-label">Pipeline 01</div>
+          <div class="pipeline-card-name">MTO Generation</div>
+        </div>
+        <div class="pipeline-cost-badge">₹60–65</div>
+      </div>
+      <div class="pipeline-card-body">
+        <div class="pipeline-stat-row"><span class="sk">API Call Types</span><span class="sv">3</span></div>
+        <div class="pipeline-stat-row"><span class="sk">Total Calls / Run</span><span class="sv">26</span></div>
+        <div class="pipeline-stat-row"><span class="sk">Total Tokens</span><span class="sv">~108,946</span></div>
+        <div class="pipeline-stat-row"><span class="sk">Cost Driver</span><span class="sv">price_fetch_mto (83%)</span></div>
+        <div class="pipeline-share-bar">
+          <div class="share-label">Share of total project cost</div>
+          <div class="share-track"><div class="share-fill" style="width:0.7%;"></div></div>
+          <div class="share-pct">&lt;1%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P2: Extraction -->
+    <div class="pipeline-card p2">
+      <div class="pipeline-card-header">
+        <div>
+          <div class="pipeline-card-label">Pipeline 02</div>
+          <div class="pipeline-card-name">Document Extraction (×2 Runs)</div>
+        </div>
+        <div class="pipeline-cost-badge">₹6,500–7,500</div>
+      </div>
+      <div class="pipeline-card-body">
+        <div class="pipeline-stat-row"><span class="sk">API Call Types</span><span class="sv">1</span></div>
+        <div class="pipeline-stat-row"><span class="sk">Total Calls</span><span class="sv">1,106</span></div>
+        <div class="pipeline-stat-row"><span class="sk">Total Tokens</span><span class="sv">~13.48M</span></div>
+        <div class="pipeline-stat-row"><span class="sk">Cost / Document</span><span class="sv">~₹6–7</span></div>
+        <div class="pipeline-share-bar">
+          <div class="share-label">Share of total project cost</div>
+          <div class="share-track"><div class="share-fill" style="width:78%;"></div></div>
+          <div class="share-pct">~78%</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- P3: SOR -->
+    <div class="pipeline-card p3">
+      <div class="pipeline-card-header">
+        <div>
+          <div class="pipeline-card-label">Pipeline 03</div>
+          <div class="pipeline-card-name">SOR POS Search</div>
+        </div>
+        <div class="pipeline-cost-badge">~₹2,000</div>
+      </div>
+      <div class="pipeline-card-body">
+        <div class="pipeline-stat-row"><span class="sk">API Call Types</span><span class="sv">4</span></div>
+        <div class="pipeline-stat-row"><span class="sk">Total Calls</span><span class="sv">541</span></div>
+        <div class="pipeline-stat-row"><span class="sk">Total Tokens</span><span class="sv">~3.1M</span></div>
+        <div class="pipeline-stat-row"><span class="sk">Cost Driver</span><span class="sv">Price Search LLM (93%)</span></div>
+        <div class="pipeline-share-bar">
+          <div class="share-label">Share of total project cost</div>
+          <div class="share-track"><div class="share-fill" style="width:21%;"></div></div>
+          <div class="share-pct">~21%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cost Distribution Bar Chart -->
+  <div class="dist-chart">
+    <h3>Cost Distribution by API Call Type</h3>
+    <div class="dist-rows">
+
+      <div class="dist-row">
+        <div class="dist-label">generate_content()<br><span style="color:var(--ink-20);font-size:10px;">Extraction Pipeline</span></div>
+        <div class="dist-track"><div class="dist-fill" style="width:78%;background:#c8922a;" id="bar-ext">~78%</div></div>
+        <div class="dist-meta"><div class="dist-cost">₹6,500–7,500</div><div class="dist-calls">1,106 calls</div></div>
+      </div>
+
+      <div class="dist-row">
+        <div class="dist-label">Price Search LLM<br><span style="color:var(--ink-20);font-size:10px;">SOR POS Pipeline</span></div>
+        <div class="dist-track"><div class="dist-fill" style="width:19%;background:#0f4c8a;" id="bar-sor">~19%</div></div>
+        <div class="dist-meta"><div class="dist-cost">₹1,500–1,900</div><div class="dist-calls">400 calls</div></div>
+      </div>
+
+      <div class="dist-row">
+        <div class="dist-label">price_fetch_mto<br><span style="color:var(--ink-20);font-size:10px;">MTO Generation</span></div>
+        <div class="dist-track"><div class="dist-fill" style="width:0.6%;background:#1a7a4a;min-width:3px;" id="bar-mto">&nbsp;</div></div>
+        <div class="dist-meta"><div class="dist-cost">₹51.20</div><div class="dist-calls">12 calls</div></div>
+      </div>
+
+      <div class="dist-row">
+        <div class="dist-label">Unit Conversion<br><span style="color:var(--ink-20);font-size:10px;">SOR POS Pipeline</span></div>
+        <div class="dist-track"><div class="dist-fill" style="width:0.25%;background:#6b7a8d;min-width:3px;" id="bar-uc">&nbsp;</div></div>
+        <div class="dist-meta"><div class="dist-cost">₹18–25</div><div class="dist-calls">40 calls</div></div>
+      </div>
+
+      <div class="dist-row">
+        <div class="dist-label">refine_specifications<br><span style="color:var(--ink-20);font-size:10px;">MTO Generation</span></div>
+        <div class="dist-track"><div class="dist-fill" style="width:0.1%;background:#a8b4c0;min-width:3px;" id="bar-rs">&nbsp;</div></div>
+        <div class="dist-meta"><div class="dist-cost">₹8.13</div><div class="dist-calls">2 calls</div></div>
+      </div>
+
+      <div class="dist-row">
+        <div class="dist-label">PDF Extraction<br><span style="color:var(--ink-20);font-size:10px;">SOR POS Pipeline</span></div>
+        <div class="dist-track"><div class="dist-fill" style="width:0.05%;background:#a8b4c0;min-width:3px;">&nbsp;</div></div>
+        <div class="dist-meta"><div class="dist-cost">₹4.00</div><div class="dist-calls">1 call</div></div>
+      </div>
+
+      <div class="dist-row">
+        <div class="dist-label">Embeddings (all)<br><span style="color:var(--ink-20);font-size:10px;">MTO + SOR</span></div>
+        <div class="dist-track"><div class="dist-fill" style="width:0.003%;background:#dde3ea;min-width:3px;">&nbsp;</div></div>
+        <div class="dist-meta"><div class="dist-cost">₹0.23</div><div class="dist-calls">112 calls</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+  §2 — EXECUTIVE SUMMARY
+═══════════════════════════════════════════ -->
+<section class="report-section" id="exec-summary">
+  <div class="section-label">
+    <div class="section-num">02</div>
+    <div>
+      <div class="section-title">Executive Summary</div>
+    </div>
+  </div>
+  <p class="section-desc">
+    High-level cost and usage metrics across all three AI pipelines. These figures represent
+    a single baseline run and are the basis for ongoing budget planning and cost optimisation.
+  </p>
+
+  <!-- KPI Scorecards -->
+  <div class="kpi-row">
+   
+    <div class="kpi-card navy anim anim-d2">
+      <div class="kpi-icon">⚡</div>
+      <div class="kpi-value">~1,673</div>
+      <div class="kpi-label">Total API Calls</div>
+      <div class="kpi-sub">Across 7 distinct call types</div>
+    </div>
+    <div class="kpi-card green anim anim-d3">
+      <div class="kpi-icon">📊</div>
+      <div class="kpi-value">~16.7M</div>
+      <div class="kpi-label">Total Tokens Consumed</div>
+      <div class="kpi-sub">Prompt + Output + Thinking combined</div>
+    </div>
+    <div class="kpi-card slate anim anim-d4">
+      <div class="kpi-icon">🔁</div>
+      <div class="kpi-value">3</div>
+      <div class="kpi-label">Operational Pipelines</div>
+      <div class="kpi-sub">MTO Gen · Extraction · SOR POS Search</div>
+    </div>
+  </div>
+
+  <!-- Stacked bar — token composition -->
+  <div class="stacked-bar-wrap">
+    <h3>Overall Token Composition — All Pipelines</h3>
+    <div class="stacked-bar" title="Token distribution across all pipelines">
+      <div class="sb-seg" style="width:46%;background:#0f4c8a;" title="Prompt: ~7.7M">Prompt 46%</div>
+      <div class="sb-seg" style="width:5%;background:#1a6abf;" title="Output: ~0.82M">Out 5%</div>
+      <div class="sb-seg" style="width:49%;background:#c8922a;" title="Thinking: ~8.12M">Thinking 49%</div>
+    </div>
+    <div class="sb-legend">
+      <div class="sb-leg-item"><div class="sb-dot" style="background:#0f4c8a;"></div>Prompt Tokens (~7.7M · 46%)</div>
+      <div class="sb-leg-item"><div class="sb-dot" style="background:#1a6abf;"></div>Output Tokens (~0.82M · 5%)</div>
+      <div class="sb-leg-item"><div class="sb-dot" style="background:#c8922a;"></div>Thinking Tokens (~8.12M · 49%)</div>
+    </div>
+  </div>
+
+  <div class="callout-box gold">
+    <span class="callout-icon">⚠</span>
+    <div><strong>Key Observation:</strong> Thinking tokens constitute ~49% of all tokens consumed, reflecting the complexity of reasoning-heavy tasks (price validation, specification disambiguation, SOR matching). While this increases cost, it directly improves output accuracy, reducing downstream correction effort.</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+  §3 — MTO GENERATION
+═══════════════════════════════════════════ -->
+<section class="report-section" id="mto-section">
+  <div class="section-label">
+    <div class="section-num">03</div>
+    <div><div class="section-title">MTO Generation Pipeline</div></div>
+  </div>
+  <p class="section-desc">
+    Three API calls convert raw procurement inputs into a verified, priced Material Take-Off.
+    Total pipeline cost per run is estimated at <strong>₹60–65</strong>.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-header-bar">
+      <h3>MTO Generation — API Call Detail</h3>
+      <span class="table-badge">26 calls / run · ₹60–65 total</span>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>API Call Type</th>
+          <th>Calls</th>
+          <th>Prompt Tokens</th>
+          <th>Output Tokens</th>
+          <th>Thinking Tokens</th>
+          <th>Total Tokens</th>
+          <th>Est. Cost (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="td-api">price_fetch_refine_specifications<br>_mto_generation</span></td>
+          <td class="td-num">2</td>
+          <td class="td-num">1,599</td>
+          <td class="td-num">1,552</td>
+          <td class="td-num">7,852</td>
+          <td class="td-num">11,003</td>
+          <td class="td-cost">₹8.13</td>
+        </tr>
+        <tr>
+          <td><span class="td-api">search_po_embedding</span></td>
+          <td class="td-num">12</td>
+          <td class="td-num">~1,200</td>
+          <td class="td-num">0</td>
+          <td class="td-num">0</td>
+          <td class="td-num">~1,200</td>
+          <td class="td-cost">₹0.13</td>
+        </tr>
+        <tr>
+          <td><span class="td-api">price_fetch_mto_generation</span></td>
+          <td class="td-num">12</td>
+          <td class="td-num">35,399</td>
+          <td class="td-num">693</td>
+          <td class="td-num">60,651</td>
+          <td class="td-num">96,743</td>
+          <td class="td-cost">₹51.20</td>
+        </tr>
+        <tr class="row-subtotal">
+          <td><strong>Pipeline Total</strong></td>
+          <td class="td-num"><strong>26</strong></td>
+          <td class="td-num"><strong>38,198</strong></td>
+          <td class="td-num"><strong>2,245</strong></td>
+          <td class="td-num"><strong>68,503</strong></td>
+          <td class="td-num"><strong>~108,946</strong></td>
+          <td class="td-cost"><strong>~₹60–65</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Token panels -->
+  <div class="token-panels">
+    <div class="token-panel">
+      <div class="token-panel-header">
+        <h4>price_fetch_mto — Token Mix</h4>
+        <span>96,743 tokens</span>
+      </div>
+      <div class="token-panel-body">
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Prompt</span><span class="token-bar-val">35,399 (36.6%)</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:36.6%;background:#0f4c8a;"></div></div>
+        </div>
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Output</span><span class="token-bar-val">693 (0.7%)</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:0.7%;background:#1a7a4a;min-width:4px;"></div></div>
+        </div>
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Thinking</span><span class="token-bar-val">60,651 (62.7%)</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:62.7%;background:#c8922a;"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="token-panel">
+      <div class="token-panel-header">
+        <h4>refine_specifications — Token Mix</h4>
+        <span>11,003 tokens</span>
+      </div>
+      <div class="token-panel-body">
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Prompt</span><span class="token-bar-val">1,599 (14.5%)</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:14.5%;background:#0f4c8a;"></div></div>
+        </div>
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Output</span><span class="token-bar-val">1,552 (14.1%)</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:14.1%;background:#1a7a4a;"></div></div>
+        </div>
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Thinking</span><span class="token-bar-val">7,852 (71.4%)</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:71.4%;background:#c8922a;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout-box">
+    <span class="callout-icon">ℹ</span>
+    <div><strong>Note:</strong> <code>search_po_embedding</code> returns vectors, not text — hence zero output and thinking tokens. Embedding calls are priced on input tokens only, making them the most cost-efficient call type in this pipeline.</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+  §4 — EXTRACTION PIPELINE
+═══════════════════════════════════════════ -->
+<section class="report-section" id="extraction-section">
+  <div class="section-label">
+    <div class="section-num">04</div>
+    <div><div class="section-title">Document Extraction Pipeline</div></div>
+  </div>
+  <p class="section-desc">
+    The highest-volume pipeline, responsible for ~78% of total AI spend. A single call type
+    processes 553+ documents across two runs, extracting structured data at scale.
+    Estimated cost: <strong>₹6,500–₹7,500</strong>.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-header-bar">
+      <h3>Extraction — API Call Detail (2 Runs Combined)</h3>
+      <span class="table-badge">1,106 calls · ~13.48M tokens</span>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>API Call</th>
+          <th>No. of Calls</th>
+          <th>Avg Input / Call</th>
+          <th>Avg Output / Call</th>
+          <th>Avg Thinking / Call</th>
+          <th>Total Input</th>
+          <th>Total Output</th>
+          <th>Total Thinking</th>
+          <th>Total Tokens</th>
+          <th>Est. Cost (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="td-api">client.models.<br>generate_content()</span></td>
+          <td class="td-num">1,106</td>
+          <td class="td-num">~5,500</td>
+          <td class="td-num">~700</td>
+          <td class="td-num">~6,000</td>
+          <td class="td-num">~6.08M</td>
+          <td class="td-num">~0.77M</td>
+          <td class="td-num">~6.63M</td>
+          <td class="td-num">~13.48M</td>
+          <td class="td-cost">₹6,500–7,500</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="token-panels">
+    <div class="token-panel">
+      <div class="token-panel-header">
+        <h4>Per-Call Token Profile (Average)</h4>
+        <span>~12,200 tokens / call</span>
+      </div>
+      <div class="token-panel-body">
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Prompt</span><span class="token-bar-val">~5,500 (45.1%)</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:45.1%;background:#0f4c8a;"></div></div>
+        </div>
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Output</span><span class="token-bar-val">~700 (5.7%)</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:5.7%;background:#1a7a4a;"></div></div>
+        </div>
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Thinking</span><span class="token-bar-val">~6,000 (49.2%)</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:49.2%;background:#c8922a;"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="token-panel">
+      <div class="token-panel-header">
+        <h4>Scale Metrics</h4>
+        <span>2 runs</span>
+      </div>
+      <div class="token-panel-body" style="padding-top:12px;">
+        <div class="pipeline-stat-row"><span class="sk">Documents per run</span><span class="sv">~553</span></div>
+        <div class="pipeline-stat-row"><span class="sk">Cost per document</span><span class="sv">~₹6–7</span></div>
+        <div class="pipeline-stat-row"><span class="sk">Cost per 100 docs</span><span class="sv">~₹590–680</span></div>
+        <div class="pipeline-stat-row"><span class="sk">Token output ratio</span><span class="sv">Output = 5.7% of input</span></div>
+        <div class="pipeline-stat-row"><span class="sk">Thinking vs prompt</span><span class="sv">Thinking = 1.09× prompt</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout-box gold">
+    <span class="callout-icon">⚠</span>
+    <div><strong>Cost Alert:</strong> With 1,106 calls at ~12,200 tokens each, this pipeline dominates total spend. Each additional extraction run adds approximately ₹3,250–3,750. Consider document batching or caching unchanged documents to reduce re-extraction costs in future runs.</div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+  §5 — SOR POS SEARCH
+═══════════════════════════════════════════ -->
+<section class="report-section" id="sor-section">
+  <div class="section-label">
+    <div class="section-num">05</div>
+    <div><div class="section-title">SOR POS Search Pipeline</div></div>
+  </div>
+  <p class="section-desc">
+    Four API call types work in sequence to match PO line items against the Schedule of Rates.
+    Total estimated cost: <strong>~₹2,000</strong>. The Price Search LLM call accounts for ~93% of pipeline spend.
+  </p>
+
+  <div class="table-wrap">
+    <div class="table-header-bar">
+      <h3>SOR POS Search — API Call Detail</h3>
+      <span class="table-badge">541 calls · ~₹2,000 total</span>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>API Call Type</th>
+          <th>Calls</th>
+          <th>Avg Input / Call</th>
+          <th>Avg Output / Call</th>
+          <th>Avg Thinking / Call</th>
+          <th>Total Tokens</th>
+          <th>Est. Cost (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="td-api">PDF Extraction</span></td>
+          <td class="td-num">1</td>
+          <td class="td-num">1,314</td>
+          <td class="td-num">929</td>
+          <td class="td-num">5,283</td>
+          <td class="td-num">7,526</td>
+          <td class="td-cost">₹4.00</td>
+        </tr>
+        <tr>
+          <td><span class="td-api">Embedding Generation</span></td>
+          <td class="td-num">100</td>
+          <td class="td-num">~80</td>
+          <td class="td-num">0</td>
+          <td class="td-num">0</td>
+          <td class="td-num">~8,000</td>
+          <td class="td-cost">₹0.10</td>
+        </tr>
+        <tr>
+          <td><span class="td-api">Price Search LLM</span></td>
+          <td class="td-num">400</td>
+          <td class="td-num">~4,000</td>
+          <td class="td-num">~120</td>
+          <td class="td-num">~3,500</td>
+          <td class="td-num">~3.05M</td>
+          <td class="td-cost">₹1,500–1,900</td>
+        </tr>
+        <tr>
+          <td><span class="td-api">Unit Conversion</span></td>
+          <td class="td-num">40</td>
+          <td class="td-num">~260</td>
+          <td class="td-num">~80</td>
+          <td class="td-num">~650</td>
+          <td class="td-num">~39,600</td>
+          <td class="td-cost">₹18–25</td>
+        </tr>
+        <tr class="row-subtotal">
+          <td><strong>Pipeline Total</strong></td>
+          <td class="td-num"><strong>541</strong></td>
+          <td class="td-num" colspan="3" style="text-align:center;color:var(--ink-40);font-size:11px;">—</td>
+          <td class="td-num"><strong>~3.1M</strong></td>
+          <td class="td-cost"><strong>~₹2,000</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="token-panels">
+    <div class="token-panel">
+      <div class="token-panel-header">
+        <h4>Price Search LLM — Token Mix</h4>
+        <span>~3.05M tokens</span>
+      </div>
+      <div class="token-panel-body">
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Prompt</span><span class="token-bar-val">~1.6M (52.4%)</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:52.4%;background:#0f4c8a;"></div></div>
+        </div>
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Output</span><span class="token-bar-val">~48K (1.6%)</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:1.6%;background:#1a7a4a;min-width:4px;"></div></div>
+        </div>
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Thinking</span><span class="token-bar-val">~1.4M (46%)</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:46%;background:#c8922a;"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="token-panel">
+      <div class="token-panel-header">
+        <h4>SOR Pipeline Cost Split</h4>
+        <span>by call type</span>
+      </div>
+      <div class="token-panel-body" style="padding-top:8px;">
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Price Search LLM</span><span class="token-bar-val">~93%</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:93%;background:#0f4c8a;"></div></div>
+        </div>
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Unit Conversion</span><span class="token-bar-val">~1.1%</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:1.1%;background:#c8922a;min-width:4px;"></div></div>
+        </div>
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">PDF Extraction</span><span class="token-bar-val">~0.2%</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:0.2%;background:#1a7a4a;min-width:4px;"></div></div>
+        </div>
+        <div class="token-bar-group">
+          <div class="token-bar-label"><span class="token-bar-name">Embedding Gen.</span><span class="token-bar-val">&lt;0.01%</span></div>
+          <div class="token-bar-track"><div class="token-bar-fill" style="width:0.01%;background:#6b7a8d;min-width:4px;"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+  §6 — MASTER REFERENCE TABLE
+═══════════════════════════════════════════ -->
+<section class="report-section" id="master-ref">
+  <div class="section-label">
+    <div class="section-num">06</div>
+    <div><div class="section-title">Master Reference Table — All API Calls</div></div>
+  </div>
+  <p class="section-desc">
+    Consolidated view of every Gemini API call across all three pipelines,
+    suitable for audit, budget submission, and management review.
+  </p>
+
+  <div class="master-table-wrap">
+    <div class="table-header-bar">
+      <h3>Complete API Usage Register</h3>
+      <span class="table-badge">7 call types · ~1,673 calls · ~16.7M tokens</span>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Pipeline</th>
+          <th>API Call Type</th>
+          <th>No. of Calls</th>
+          <th>Prompt Tokens</th>
+          <th>Output Tokens</th>
+          <th>Thinking Tokens</th>
+          <th>Total Tokens</th>
+          <th>Est. Cost (₹)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- MTO label row -->
+        <tr><td colspan="8" class="pipeline-row-label pl1">Pipeline 01 — MTO Generation</td></tr>
+        <tr>
+          <td style="color:var(--ink-40);font-size:11px;">MTO Gen</td>
+          <td><span class="td-api">price_fetch_refine_specifications_mto_generation</span></td>
+          <td class="td-num">2</td>
+          <td class="td-num">1,599</td>
+          <td class="td-num">1,552</td>
+          <td class="td-num">7,852</td>
+          <td class="td-num">11,003</td>
+          <td class="td-cost">₹8.13</td>
+        </tr>
+        <tr>
+          <td style="color:var(--ink-40);font-size:11px;">MTO Gen</td>
+          <td><span class="td-api">search_po_embedding</span></td>
+          <td class="td-num">12</td>
+          <td class="td-num">~1,200</td>
+          <td class="td-num">0</td>
+          <td class="td-num">0</td>
+          <td class="td-num">~1,200</td>
+          <td class="td-cost">₹0.13</td>
+        </tr>
+        <tr>
+          <td style="color:var(--ink-40);font-size:11px;">MTO Gen</td>
+          <td><span class="td-api">price_fetch_mto_generation</span></td>
+          <td class="td-num">12</td>
+          <td class="td-num">35,399</td>
+          <td class="td-num">693</td>
+          <td class="td-num">60,651</td>
+          <td class="td-num">96,743</td>
+          <td class="td-cost">₹51.20</td>
+        </tr>
+        <tr class="row-subtotal">
+          <td colspan="2" style="color:var(--primary);font-size:11px;font-weight:700;">MTO Generation Subtotal</td>
+          <td class="td-num"><strong>26</strong></td>
+          <td class="td-num"><strong>38,198</strong></td>
+          <td class="td-num"><strong>2,245</strong></td>
+          <td class="td-num"><strong>68,503</strong></td>
+          <td class="td-num"><strong>~108,946</strong></td>
+          <td class="td-cost"><strong>~₹60–65</strong></td>
+        </tr>
+
+        <!-- Extraction label row -->
+        <tr><td colspan="8" class="pipeline-row-label pl2">Pipeline 02 — Document Extraction (2 Runs)</td></tr>
+        <tr>
+          <td style="color:var(--ink-40);font-size:11px;">Extraction</td>
+          <td><span class="td-api">client.models.generate_content()</span></td>
+          <td class="td-num">1,106</td>
+          <td class="td-num">~6.08M</td>
+          <td class="td-num">~0.77M</td>
+          <td class="td-num">~6.63M</td>
+          <td class="td-num">~13.48M</td>
+          <td class="td-cost">₹6,500–7,500</td>
+        </tr>
+        <tr class="row-subtotal">
+          <td colspan="2" style="color:var(--warn);font-size:11px;font-weight:700;">Extraction Subtotal</td>
+          <td class="td-num"><strong>1,106</strong></td>
+          <td class="td-num"><strong>~6.08M</strong></td>
+          <td class="td-num"><strong>~0.77M</strong></td>
+          <td class="td-num"><strong>~6.63M</strong></td>
+          <td class="td-num"><strong>~13.48M</strong></td>
+          <td class="td-cost"><strong>₹6,500–7,500</strong></td>
+        </tr>
+
+        <!-- SOR label row -->
+        <tr><td colspan="8" class="pipeline-row-label pl3">Pipeline 03 — SOR POS Search</td></tr>
+        <tr>
+          <td style="color:var(--ink-40);font-size:11px;">SOR Search</td>
+          <td><span class="td-api">PDF Extraction</span></td>
+          <td class="td-num">1</td>
+          <td class="td-num">1,314</td>
+          <td class="td-num">929</td>
+          <td class="td-num">5,283</td>
+          <td class="td-num">7,526</td>
+          <td class="td-cost">₹4.00</td>
+        </tr>
+        <tr>
+          <td style="color:var(--ink-40);font-size:11px;">SOR Search</td>
+          <td><span class="td-api">Embedding Generation</span></td>
+          <td class="td-num">100</td>
+          <td class="td-num">~8,000</td>
+          <td class="td-num">0</td>
+          <td class="td-num">0</td>
+          <td class="td-num">~8,000</td>
+          <td class="td-cost">₹0.10</td>
+        </tr>
+        <tr>
+          <td style="color:var(--ink-40);font-size:11px;">SOR Search</td>
+          <td><span class="td-api">Price Search LLM</span></td>
+          <td class="td-num">400</td>
+          <td class="td-num">~1.6M</td>
+          <td class="td-num">~48,000</td>
+          <td class="td-num">~1.4M</td>
+          <td class="td-num">~3.05M</td>
+          <td class="td-cost">₹1,500–1,900</td>
+        </tr>
+        <tr>
+          <td style="color:var(--ink-40);font-size:11px;">SOR Search</td>
+          <td><span class="td-api">Unit Conversion</span></td>
+          <td class="td-num">40</td>
+          <td class="td-num">~10,400</td>
+          <td class="td-num">~3,200</td>
+          <td class="td-num">~26,000</td>
+          <td class="td-num">~39,600</td>
+          <td class="td-cost">₹18–25</td>
+        </tr>
+        <tr class="row-subtotal">
+          <td colspan="2" style="color:var(--success);font-size:11px;font-weight:700;">SOR POS Search Subtotal</td>
+          <td class="td-num"><strong>541</strong></td>
+          <td class="td-num"><strong>~1.62M</strong></td>
+          <td class="td-num"><strong>~52K</strong></td>
+          <td class="td-num"><strong>~1.43M</strong></td>
+          <td class="td-num"><strong>~3.1M</strong></td>
+          <td class="td-cost"><strong>~₹2,000</strong></td>
+        </tr>
+
+       
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════
+  §7 — STRATEGIC INSIGHTS & NOTES
+═══════════════════════════════════════════ -->
+<section class="report-section" id="insights">
+  <div class="section-label">
+    <div class="section-num">07</div>
+    <div><div class="section-title">Strategic Insights &amp; Management Notes</div></div>
+  </div>
+  <p class="section-desc">
+    Observations and recommendations for cost governance, optimisation, and planning.
+  </p>
+
+  <div class="insights-grid">
+    <div class="insight-card warn">
+      <div class="insight-tag">🔴 Cost Priority</div>
+      <h4>Extraction Pipeline Drives 78% of Cost</h4>
+      <p>Document extraction (1,106 calls) is the dominant spend. Each additional run adds ~₹3,250–3,750. Implementing document caching and change-detection before re-extraction would be the highest-ROI optimisation available.</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-tag">📐 Architecture</div>
+      <h4>Thinking Tokens = Quality Investment</h4>
+      <p>49% of all tokens are thinking tokens. This is by design — the model reasons internally before answering complex tasks. Disabling thinking would reduce costs ~40% but risks accuracy in price matching and specification disambiguation.</p>
+    </div>
+    <div class="insight-card success">
+      <div class="insight-tag">✅ Efficiency</div>
+      <h4>MTO Pipeline is Highly Cost-Efficient</h4>
+      <p>At &lt;1% of total spend (₹60–65 per run), MTO generation delivers disproportionate value. The cost per priced MTO line item is negligible. No optimisation needed in this pipeline.</p>
+    </div>
+    <div class="insight-card neutral">
+      <div class="insight-tag">📋 Scalability</div>
+      <h4>SOR Cost Scales Linearly with PO Volume</h4>
+      <p>The SOR Price Search LLM cost grows proportionally with PO line items (400 items = ~₹1,500–1,900). For every 100 additional PO items, expect ~₹375–475 in additional SOR pipeline cost.</p>
+    </div>
+    <div class="insight-card">
+      <div class="insight-tag">💡 Optimisation</div>
+      <h4>Embedding Calls are Effectively Free</h4>
+      <p>All embedding calls combined (112 total) cost ₹0.23 — negligible. Embedding-first search architecture is the correct approach; expand semantic search coverage without cost concern.</p>
+    </div>
+    <div class="insight-card warn">
+      <div class="insight-tag">📅 Projection</div>
+      <h4>Budget Planning for Recurring Runs</h4>
+      <p>Assuming quarterly extraction runs + monthly MTO and SOR runs: projected annual AI API cost is approximately <strong>₹30,000–40,000</strong>. Establish a monthly API cost monitoring dashboard to track actuals vs this baseline.</p>
+    </div>
+  </div>
+
+  <div class="rule-divider"></div>
+
+  <div style="background:#f7f8fa;border:1px solid var(--rule);border-radius:var(--r-lg);padding:24px 28px;">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--ink-40);margin-bottom:14px;">Terminology Reference</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;">Prompt Tokens</div>
+        <div style="font-size:12px;color:var(--ink-60);line-height:1.55;">Text sent to the model — instructions, document content, and context. Billed as input tokens.</div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;">Output Tokens</div>
+        <div style="font-size:12px;color:var(--ink-60);line-height:1.55;">Text returned by the model. Typically 5–15% of input volume. Billed at output rate.</div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;">Thinking Tokens</div>
+        <div style="font-size:12px;color:var(--ink-60);line-height:1.55;">Internal chain-of-thought reasoning, not shown in output. Improves accuracy for complex tasks. Billed separately.</div>
+      </div>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:4px;">Embedding Tokens</div>
+        <div style="font-size:12px;color:var(--ink-60);line-height:1.55;">Input-only tokens used to convert text into search vectors. No output or thinking tokens; extremely cheap.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div><!-- /report-body -->
+
+<!-- FOOTER -->
+<div class="report-footer">
+  <div class="footer-mark">Internal Use Only — AI Cost Estimation Report</div>
+  <div class="footer-note">Generated: May 2025 · Google Gemini API · Baseline Run</div>
+  <div class="footer-conf">Confidential</div>
+</div>
+
+</div><!-- /report-shell -->
+
+<script>
+  function goTo(id, btn) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  }
+
+  // Active nav on scroll
+  const sections = [
+    { id: 'pipeline-overview', idx: 0 },
+    { id: 'exec-summary', idx: 1 },
+    { id: 'mto-section', idx: 2 },
+    { id: 'extraction-section', idx: 3 },
+    { id: 'sor-section', idx: 4 },
+    { id: 'master-ref', idx: 5 },
+    { id: 'insights', idx: 6 },
+  ];
+  const navItems = document.querySelectorAll('.nav-item');
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const match = sections.find(s => s.id === entry.target.id);
+        if (match) {
+          navItems.forEach(b => b.classList.remove('active'));
+          navItems[match.idx].classList.add('active');
+        }
+      }
+    });
+  }, { rootMargin: '-20% 0px -60% 0px', threshold: 0 });
+
+  sections.forEach(s => {
+    const el = document.getElementById(s.id);
+    if (el) observer.observe(el);
+  });
+</script>
+</body>
+</html>
